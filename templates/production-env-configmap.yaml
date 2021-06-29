@@ -1,0 +1,23 @@
+apiVersion: v1
+data:
+  KAFKA_ADVERTISED_HOST_NAME: kafka
+  KAFKA_ADVERTISED_PORT: "9092"
+  KAFKA_CREATE_TOPICS: payments:1:1
+  KAFKA_PORT: "9092"
+  KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  PAYMENTS_HOST: payments
+  PAYMENTS_PORT: "8000"
+  POSTGRES_DB: p2pay
+  POSTGRES_HOST: postgres
+  POSTGRES_PASSWORD: docker
+  POSTGRES_PORT: "5432"
+  POSTGRES_USER: docker
+  PRODUCER_HOST: producer
+  PRODUCER_PORT: "9000"
+  PROJECT_NAME: p2pay
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: kafka-production-env
+  name: production-env
