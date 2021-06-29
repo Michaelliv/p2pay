@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <link href="http://fonts.cdnfonts.com/css/cedarville-cursive" rel="stylesheet">
+    <style>
+        .parent {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .child {
+            margin-top: 200px;
+            min-width: 500px;
+            background-color: rgb(244, 255, 240);
+            padding: 20px;
+            box-shadow: 0px 0px 10px;
+            border-radius: 20px;
+        }
+
+        .input-group-prepend {
+            width: 35%;
+            /*adjust as needed*/
+        }
+
+        .input-group-prepend label {
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            font-family: 'Cedarville Cursive', sans-serif;
+            font-size: 40px;
+        }
+    </style>
+    <title>P2PAY</title>
+</head>
+
+<body>
+    <div class="parent">
+        <div class="child">
+            <div class="header mb-3 text-center">p2pay</div>
+            <form action="/" id="payment-form" method="post">
+
+                <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text">From</span>
+                    <select name="from_field" id="from_field" class="form-select" form="payment-form"
+                        onchange="updateForm(this.value)">
+                    </select>
+                </div>
+
+                <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text">To</span>
+                    <select name="to_field" id="to_field" class="form-select" form="payment-form">
+                    </select>
+                </div>
+
+                <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text">Currency</span>
+                    <select id="currency" name="currency" class="form-select" form="payment-form">
+                    </select>
+                </div>
+
+                <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text">Method</span>
+                    <select id="payment_method" name="payment_method" class="form-select" form="payment-form">
+                    </select>
+                </div>
+
+                <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text">Sum</span>
+                    <input name="sum" id="sum" type="text" class="form-control" form="payment-form">
+                </div>
+
+                <button type="submit" class="btn btn-success">Submit</button>
+            </form>
+        </div>
+    </div>
+</body>
+<script>
+    async function getData(url = '') {
+        const response = await fetch(url, {
+            method: 'GET',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            redirect: 'follow',
+            referrerPolicy: 'no-referrer'
+        });
+        return response.json();
+    }
+
+    async function postData(url = '', data = {}) {
+        const response = await fetch(url, {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            redirect: 'follow',
+            referrerPolicy: 'no-referrer',
+            body: JSON.stringify(data)
+        });
+        return response.json();
+    }
+
+    getData('http://localhost:8000/api/v1/users')
+        .then(data => {
+            $("#from_field").empty();
+            var selectHtml = "";
+            $.each(data, function (index, item) {
+                selectHtml += `<option value=${item.guid}>${item.first_name} ${item.last_name}</option>`
+            });
+            $("#from_field").html(selectHtml);
+        });
+
+    getData('http://localhost:8000/api/v1/users')
+        .then(data => {
+            $("#to_field").empty();
+            var selectHtml = "";
+            data.forEach(item => {
+                selectHtml += `<option value=${item.guid}>${item.first_name} ${item.last_name}</option>`
+            });
+            $("#to_field").html(selectHtml);
+        });
+
+    getData("http://localhost:8000/api/v1/currencies")
+        .then(data => {
+            $("#currency").empty();
+            var selectHtml = "";
+            data.forEach(item => {
+                selectHtml += `<option value=${item.code}>${item.name}</option>`
+            });
+            $("#currency").html(selectHtml);
+        });
+
+    function updateForm(userGUID) {
+        getData(`http://localhost:8000/api/v1/users/${userGUID}/paymentmethods`)
+            .then(data => {
+                $("#payment_method").empty();
+                var selectHtml = "";
+                data.payment_methods.forEach(method =>{
+                    selectHtml += `<option value=${method.guid}>${method.name}</option>`
+                })
+                $("#payment_method").html(selectHtml);
+            });
+    }
+
+
+</script>
+
+</html>

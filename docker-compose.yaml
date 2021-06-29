@@ -1,0 +1,90 @@
+version: '2.1'
+services:
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - 2181:2181
+
+  kafka:
+    image: wurstmeister/kafka
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_CREATE_TOPICS: "payments:1:1"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: docker
+      POSTGRES_USER: docker
+      POSTGRES_DB: p2pay
+    ports:
+      - 5432:5432
+    volumes:
+      - database-data:/var/lib/postgresql/data/
+
+  payment_service:
+    image: livsmichael/p2py:latest
+    restart: unless-stopped
+    depends_on:
+      - zookeeper
+      - kafka
+      - postgres
+    ports:
+      - 8000:8000
+    environment:
+      POSTGRES_USERNAME: docker
+      POSTGRES_PASSWORD: docker
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      PRODUCER_HOST: kafka_producer_service
+      PRODUCER_PORT: 8005
+    command: uvicorn payment_service.app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
+
+  kafka_producer_service:
+    image: livsmichael/p2py:latest
+    restart: on-failure
+    depends_on:
+      - kafka
+    ports:
+      - 8005:8005
+    environment:
+      PROJECT_NAME: p2pay
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9092
+    command: >
+      sh -c "sleep 5 && uvicorn producer_service.app.main:app --reload --workers 1 --host 0.0.0.0 --port 8005"
+
+  ui_service:
+    image: livsmichael/p2py:latest
+    restart: on-failure
+    ports:
+      - 8010:8010
+    environment:
+      PAYMENTS_HOST: payment_service
+      PAYMENTS_PORT: 8000
+    command: uvicorn ui_service.app.main:app --reload --workers 1 --host 0.0.0.0 --port 8010
+
+  risk_engine:
+    image: livsmichael/p2py:latest
+    restart: on-failure
+    environment:
+      POSTGRES_USERNAME: docker
+      POSTGRES_PASSWORD: docker
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9092
+    command: >
+      sh -c "sleep 5 && python risk_engine_service/main.py"
+
+
+volumes:
+  database-data:
+
