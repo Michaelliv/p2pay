@@ -14,6 +14,10 @@
         integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <link href="http://fonts.cdnfonts.com/css/cedarville-cursive" rel="stylesheet">
     <style>
+        body {
+            background: whitesmoke;
+        }
+
         .parent {
             display: flex;
             justify-content: center;
@@ -23,15 +27,9 @@
         .child {
             margin-top: 200px;
             min-width: 500px;
-            background-color: rgb(244, 255, 240);
+            background: white;
+            /*background-color: rgb(255, 255, 255);*/
             padding: 20px;
-            box-shadow: 0px 0px 10px;
-            border-radius: 20px;
-        }
-
-        .input-group-prepend {
-            width: 35%;
-            /*adjust as needed*/
         }
 
         .input-group-prepend label {
@@ -42,6 +40,7 @@
         .header {
             font-family: 'Cedarville Cursive', sans-serif;
             font-size: 40px;
+            color: #9555fc;
         }
     </style>
     <title>P2PAY</title>
@@ -49,33 +48,36 @@
 
 <body>
     <div class="parent">
-        <div class="child">
+        <div class="child border">
             <div class="header mb-3 text-center">p2pay</div>
             <form action="/" id="payment-form" method="post">
 
-                <div class="input-group input-group-sm mb-3">
-                    <span class="input-group-text">From</span>
-                    <select name="from_field" id="from_field" class="form-select" form="payment-form"
-                        onchange="updateForm(this.value)">
-                    </select>
+                <div class="d-flex justify-content-evenly">
+                    <div class="input-group input-group-sm mb-3 me-2">
+                        <span class="input-group-text">From</span>
+                        <select name="from_field" id="from_field" class="form-select" form="payment-form"
+                            onchange="updateForm(this.value)">
+                        </select>
+                    </div>
+                    <div class="input-group input-group-sm mb-3 ms-2">
+                        <span class="input-group-text">To</span>
+                        <select name="to_field" id="to_field" class="form-select" form="payment-form">
+                        </select>
+                    </div>
                 </div>
 
-                <div class="input-group input-group-sm mb-3">
-                    <span class="input-group-text">To</span>
-                    <select name="to_field" id="to_field" class="form-select" form="payment-form">
-                    </select>
-                </div>
 
-                <div class="input-group input-group-sm mb-3">
-                    <span class="input-group-text">Currency</span>
-                    <select id="currency" name="currency" class="form-select" form="payment-form">
-                    </select>
-                </div>
-
-                <div class="input-group input-group-sm mb-3">
-                    <span class="input-group-text">Method</span>
-                    <select id="payment_method" name="payment_method" class="form-select" form="payment-form">
-                    </select>
+                <div class="d-flex justify-content-evenly">
+                    <div class="input-group input-group-sm mb-3 me-2">
+                        <span class="input-group-text">Method</span>
+                        <select id="payment_method" name="payment_method" class="form-select" form="payment-form">
+                        </select>
+                    </div>
+                    <div class="input-group input-group-sm mb-3 ms-2">
+                        <span class="input-group-text">Currency</span>
+                        <select id="currency" name="currency" class="form-select" form="payment-form">
+                        </select>
+                    </div>
                 </div>
 
                 <div class="input-group input-group-sm mb-3">
@@ -83,7 +85,7 @@
                     <input name="sum" id="sum" type="text" class="form-control" form="payment-form">
                 </div>
 
-                <button type="submit" class="btn btn-success">Submit</button>
+                <button type="submit" class="btn btn-success" style="width: 100%; background: #9555fc">Submit</button>
             </form>
         </div>
     </div>
@@ -155,7 +157,7 @@
             .then(data => {
                 $("#payment_method").empty();
                 var selectHtml = "";
-                data.payment_methods.forEach(method =>{
+                data.payment_methods.forEach(method => {
                     selectHtml += `<option value=${method.guid}>${method.name}</option>`
                 })
                 $("#payment_method").html(selectHtml);
