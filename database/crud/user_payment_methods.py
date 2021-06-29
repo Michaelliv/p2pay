@@ -2,7 +2,7 @@ from database.database import (
     user_payment_methods_table,
     database,
 )
-from payment_service.app.api.models import PaymentMethod
+from common.models import PaymentMethod
 
 
 async def insert_user_payment_method(user_guid: str, payment_method: PaymentMethod):

@@ -1,8 +1,8 @@
 from fastapi.encoders import jsonable_encoder
 
 from common.logger import get_logger
+from common.models import ProcessedPayment
 from database.database import payments_table, database
-from risk_engine_service.models import ProcessedPayment
 
 logger = get_logger(__file__)
 
@@ -11,15 +11,11 @@ async def insert_processed_payment(processed_payment: ProcessedPayment):
     # Flatten model structure and insert to DB
     try:
         logger.info(
-            f"Inserting processed payment [{processed_payment.payment.transaction_guid}]..."
+            f"Inserting processed payment [{processed_payment.transaction_guid}]..."
         )
         # Encode model values to serializable types
         encoded = jsonable_encoder(
-            dict(
-                risk_score=processed_payment.risk_score,
-                is_approved=processed_payment.is_approved,
-                **processed_payment.payment.dict(exclude_none=True, exclude_unset=True),
-            )
+            processed_payment.dict(exclude_none=True, exclude_unset=True),
         )
         query = payments_table.insert().values(encoded)
         await database.execute(query)

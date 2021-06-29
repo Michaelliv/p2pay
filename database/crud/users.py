@@ -1,4 +1,4 @@
-from payment_service.app.api.models import User
+from common.models import User
 from database.database import users_table, database
 
 

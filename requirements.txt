@@ -10,3 +10,4 @@ starlette~=0.14.2
 pydantic~=1.8.2
 aiofiles==0.7.0
 python-multipart==0.0.5
+python-dotenv==0.18.0

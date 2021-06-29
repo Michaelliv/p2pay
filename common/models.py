@@ -48,3 +48,8 @@ class Payment(BaseModel):
     @validator("timestamp", pre=True, always=True)
     def set_utc_timestamp(cls, v):
         return v or datetime.utcnow()
+
+
+class ProcessedPayment(Payment):
+    risk_score: float
+    is_approved: bool

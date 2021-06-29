@@ -1,4 +1,4 @@
-from payment_service.app.api.models import Currency
+from common.models import Currency
 from database.database import currencies_table, database
 
 

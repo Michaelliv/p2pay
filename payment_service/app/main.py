@@ -2,6 +2,7 @@ from asyncpg import UniqueViolationError
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from common import models
 from common.logger import get_logger
 from database.database import metadata, database, engine
 from payment_service.app.api import (
@@ -10,7 +11,7 @@ from payment_service.app.api import (
     payment_methods_api_router,
     user_payment_methods_api_router,
     currencies_api_router,
-    models,
+    ui_api_router,
 )
 
 logger = get_logger(__name__)
@@ -158,6 +159,11 @@ async def shutdown_event():
     await database.disconnect()
     logger.info("Payment service shutting down")
 
+
+app.include_router(
+    ui_api_router,
+    tags=["ui"],
+)
 
 app.include_router(
     users_api_router,

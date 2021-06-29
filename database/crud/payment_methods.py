@@ -1,4 +1,4 @@
-from payment_service.app.api.models import PaymentMethod
+from common.models import PaymentMethod
 from database.database import payment_methods_table, database
 
 

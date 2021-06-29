@@ -1,8 +1,7 @@
 import random
 from abc import ABC, abstractmethod
 
-from payment_service.app.api.models import Payment
-from risk_engine_service.models import ProcessedPayment
+from common.models import Payment, ProcessedPayment
 
 
 class AbstractRiskEngine(ABC):
@@ -47,7 +46,7 @@ class RandomRiskEngine(AbstractRiskEngine):
         """ Checks if risk score is below the approval_threshold. """
         approval = risk_score <= self.approval_threshold
         return ProcessedPayment(
-            payment=payment,
             risk_score=risk_score,
             is_approved=approval,
+            **payment.dict(),
         )

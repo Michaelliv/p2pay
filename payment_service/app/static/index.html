@@ -120,7 +120,7 @@
         return response.json();
     }
 
-    getData('http://localhost:8000/api/v1/users')
+    getData('api/v1/users')
         .then(data => {
             $("#from_field").empty();
             var selectHtml = "";
@@ -130,7 +130,7 @@
             $("#from_field").html(selectHtml);
         });
 
-    getData('http://localhost:8000/api/v1/users')
+    getData('api/v1/users')
         .then(data => {
             $("#to_field").empty();
             var selectHtml = "";
@@ -140,7 +140,7 @@
             $("#to_field").html(selectHtml);
         });
 
-    getData("http://localhost:8000/api/v1/currencies")
+    getData("api/v1/currencies")
         .then(data => {
             $("#currency").empty();
             var selectHtml = "";
@@ -151,7 +151,7 @@
         });
 
     function updateForm(userGUID) {
-        getData(`http://localhost:8000/api/v1/users/${userGUID}/paymentmethods`)
+        getData(`api/v1/users/${userGUID}/paymentmethods`)
             .then(data => {
                 $("#payment_method").empty();
                 var selectHtml = "";

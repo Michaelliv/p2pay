@@ -9,7 +9,7 @@ from starlette.status import HTTP_204_NO_CONTENT
 
 from common.config import PROJECT_NAME, KAFKA_BOOTSTRAP_SERVERS
 from common.logger import get_logger
-from payment_service.app.api.models import Payment
+from common.models import Payment
 
 logger = get_logger(__name__)
 

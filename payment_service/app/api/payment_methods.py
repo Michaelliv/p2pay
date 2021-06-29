@@ -7,7 +7,7 @@ from starlette.status import HTTP_204_NO_CONTENT
 
 from common.logger import get_logger
 from database import crud
-from payment_service.app.api.models import PaymentMethod
+from common.models import PaymentMethod
 
 logger = get_logger(__name__)
 

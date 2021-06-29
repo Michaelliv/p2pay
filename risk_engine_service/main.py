@@ -7,6 +7,7 @@ from aiokafka import AIOKafkaConsumer
 import database.crud.payments as payments_crud
 from common.config import KAFKA_BOOTSTRAP_SERVERS, KAFKA_CONSUMER_GROUP, KAFKA_TOPIC
 from common.logger import get_logger
+from common.models import Payment
 from database.database import database
 from risk_engine_service.engine import RandomRiskEngine, AbstractRiskEngine
 
@@ -52,12 +53,14 @@ async def main():
         # Then processes them using the risk engine
         async for message in consumer:
             processed_payment = await loop.run_in_executor(
-                executor, risk_engine.process, message.value
+                executor, risk_engine.process, Payment(**message.value)
             )
             # Insert processed payment to database
             await payments_crud.insert_processed_payment(
                 processed_payment=processed_payment
             )
+    except Exception as e:
+        logger.exception(f"Exception: {e}")
 
     finally:
         logger.info("Stopping consumer and disconnecting from database gracefully...")
