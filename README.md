@@ -7,11 +7,37 @@ interception system.
 ![UI Demo](docs/ui.png "Demo UI for p2pay")
 
 # Design
-![Flow Chart](docs/p2pay-flow.png "p2pay flow chart")
+![Flow Chart](docs/p2pay-flow2.png "p2pay flow chart")
 
 # API docs
 API docs are available via `http://localhost:8000/api/v1/docs` once services are deployed
 ![Swagger UI](docs/swagger.png)
+
+# Database Schemas
+![Database Schemas](docs/schemas.png)
+
+# Prerequisites
+* Python >= 3.7
+* Docker
+* Docker Compose
+* Kubernetes cluster / Minikube (optional) + kubectl
+
+# Deployment
+Deployment is supported in two forms:
+1) Docker compose
+2) Kubernetes cluster / Minikube
+
+In order to deploy the project we will need:
+1) Run `git clone https://github.com/Michaelliv/p2pay.git`
+2) Run `cd p2pay`
+
+## Docker Compose
+1) Run `docker-compose up -d`
+2) Run `docker-compose ps` to validate containers are running
+
+## Kubernetes / Minikube
+1) Run `kubectl apply -f templates/`
+2) Run `kubectl get po` to validate pods are running
 
 # Configuration
 ```
@@ -39,61 +65,71 @@ PRODUCER_HOST=producer
 PRODUCER_PORT=9000
 ```
 
-# Performance
-Baseline performance will be determined by the "weakest link", here are some base numbers to consider:<br>
+# Capacity Planning / Scalability
 
-## Fast API
-[Benchmark](https://www.techempower.com/benchmarks/#section=data-r20&hw=ph&test=composite&f=zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-ziimf3-zik0zj-zik0zj-zik0zj-cn3
-)<br>
-171k req/sec for FastAPI or 542.27KB/s
+## Fast API Services
+According to Techempower's [Benchmark](https://www.techempower.com/benchmarks/#section=data-r20&hw=ph&test=composite&f=zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-ziimf3-zik0zj-zik0zj-zik0zj-cn3
+). We can expect a maximum of 171k req/sec (or 542.27KB/s) for FastAPI. Given our average payload size is about 200b 
+(rounded up), we can calculate:<br>
+542Kb -> 542000b<br>
+542000 / 200 = 2710 req/sec<br>
 
-## Kafka
+Which in all honesty - a shameful number, leading to two available options:
+1) Switch to a more performant language/framework (go / FastHTTP)
+2) Support auto-scaling for FastAPI-based services leveraging a load balancer and service replicas in Kubernetes 
 
-## Postgres
+## Kafka Cluster
+### Topology
+http://cloudurable.com/ppt/4-kafka-detailed-architecture.pdf
 
-# Prerequisites
-* Python >= 3.7
-* Docker
-* Docker Compose
-* Kubernetes cluster / Minikube (optional) + kubectl
+https://www.slideshare.net/ToddPalino/putting-kafka-into-overdrive
 
-# Deployment
-Deployment is supported in two forms:
-1) Docker compose
-2) Kubernetes cluster / Minikube
+https://www.slideshare.net/JiangjieQin/no-data-loss-pipeline-with-apache-kafka-49753844
 
-In order to deploy the project we will need:
-1) Run `git clone https://github.com/Michaelliv/p2pay.git`
-2) Run `cd p2pay`
+### Storage Space
+| Retention Period | Compression Strategy | Average Message Size | Message Amount | Replication Factor | Minimal Required Disk Space      |
+| ---------------- | -------------------- | -------------------- | -------------- | ------------------ | -------------------------------- |
+| T                | c                    | x                    | y              | z                  | c * x * y * z over a period of T |
+| 2 Weeks          | None                 | 200b                 | 20,000,000 (assuming 1 million transactions a day)    | 3 | 11.5Gb (rounded) |
 
-## Docker Compose
-1) Run `docker-compose up -d`
-2) Run `docker-compose ps` to validate containers are running
-
-## Kubernetes / Minikube
-1) Run `kubectl apply -f templates/`
-2) Run `kubectl get po` to validate pods are running
-
-# Debugging
-
-
-# Scaling
-## Fast API
-## Kafka
-## Risk Engine
+Side note:
+GUIDs should probably be converted to bigInt and stored as hex 
 
 # Testing
-## Fast API
-## Kafka
-## SQLAlchemy
-## UI
-## Risk Engine
+## FastAPI
+Testing FastAPI is fairly easy, examples can be found [here](https://fastapi.tiangolo.com/tutorial/testing/), FastAPI plays
+very nice with `pytest`.
 
-# Known Issues
-Kafka issue
-No CI/CD
+```python
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
+
+app = FastAPI()
+
+
+@app.get("/")
+async def read_main():
+    return {"msg": "Hello World"}
+
+
+client = TestClient(app)
+
+
+def test_read_main():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert response.json() == {"msg": "Hello World"}
+```
+
+## Kafka Producers / Consumers
+For unitests (where business logic interacts with Kafka), Kafka Producer and Consumers should be mocked.<br>
+For system tests, a low capacity dedicated cluster would work fine.
+For load testing [Ranger](https://blog.smartcat.io/2017/load-testing-kafka-with-ranger/) can be used.
+
+## UI
+For testing UI components [Puppeteer](https://developers.google.com/web/tools/puppeteer) can be used.
 
 # Possible Enhancements
-## Replacing GUIDs with numeric ids
-## Routing logs 
-## Use secrets instead of passing passwords in environment variables
+1) Replacing GUIDs with numeric ids
+2) Use Logstash for faster debugging in production environment
+3) Use secrets instead of passing passwords in environment variables

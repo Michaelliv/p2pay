@@ -1,10 +1,8 @@
-from typing import List
+from typing import List, Union
 
 import aiohttp
-from fastapi import APIRouter
-from fastapi import HTTPException
+from fastapi import APIRouter, HTTPException, Response
 from fastapi.encoders import jsonable_encoder
-from starlette.responses import Response
 from starlette.status import HTTP_204_NO_CONTENT
 
 from common.config import PRODUCER_URI
@@ -22,7 +20,7 @@ async def post_payment(payment: Payment):
     return await post_payment_to_producer(payment=payment)
 
 
-async def post_payment_to_producer(payment: Payment):
+async def post_payment_to_producer(payment: Payment) -> Response:
     async with aiohttp.ClientSession() as session:
         # We need to encode the payment model since datetime is not a serializable object
         message = jsonable_encoder(payment)
@@ -33,7 +31,7 @@ async def post_payment_to_producer(payment: Payment):
                 return Response(status_code=HTTP_204_NO_CONTENT)
             else:
                 response_body = await response.text()
-                return HTTPException(status_code=response.status, detail=response_body)
+                raise HTTPException(status_code=response.status, detail=response_body)
 
 
 @payments_api_router.get("/payments", response_model=List[Payment])

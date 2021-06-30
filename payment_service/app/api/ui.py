@@ -18,7 +18,7 @@ async def read_index():
     return FileResponse(f"{ROOT_DIR}/payment_service/app/static/index.html")
 
 
-@ui_api_router.post("/", status_code=201)
+@ui_api_router.post("/", status_code=204)
 async def form_submit(
     from_field: str = Form(...),
     to_field: str = Form(...),
@@ -35,4 +35,6 @@ async def form_submit(
         payment_method=payment_method,
     )
 
-    return await post_payment_to_producer(payment=payment)
+    response = await post_payment_to_producer(payment=payment)
+    logger.debug(f"Payment sent to producer successfully {payment}")
+    return response
