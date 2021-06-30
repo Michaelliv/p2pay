@@ -90,7 +90,7 @@ https://www.slideshare.net/JiangjieQin/no-data-loss-pipeline-with-apache-kafka-4
 | Retention Period | Compression Strategy | Average Message Size | Message Amount | Replication Factor | Minimal Required Disk Space      |
 | ---------------- | -------------------- | -------------------- | -------------- | ------------------ | -------------------------------- |
 | T                | c                    | x                    | y              | z                  | c * x * y * z over a period of T |
-| 2 Weeks          | None                 | 200b                 | 20,000,000 (assuming 1 million transactions a day)    | 3 | 11.5Gb (rounded) |
+| 2 Weeks          | None                 | 200b                 | 14,000,000 (assuming 1 million transactions a day)    | 3 | 8.4Gb (rounded) |
 
 Side note:
 GUIDs should probably be converted to bigInt and stored as hex 
